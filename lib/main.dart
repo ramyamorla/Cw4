@@ -5,58 +5,71 @@ class Plan {
   String description;
   DateTime date;
   String priority;
-  bool isCompleted;
 
   Plan({
     required this.name,
     required this.description,
     required this.date,
     required this.priority,
-    this.isCompleted = false,
   });
 }
 
-class SwipeCompleteScreen extends StatefulWidget {
+class LongPressEditScreen extends StatefulWidget {
   @override
-  _SwipeCompleteScreenState createState() => _SwipeCompleteScreenState();
+  _LongPressEditScreenState createState() => _LongPressEditScreenState();
 }
 
-class _SwipeCompleteScreenState extends State<SwipeCompleteScreen> {
+class _LongPressEditScreenState extends State<LongPressEditScreen> {
   List<Plan> plans = [
-    Plan(name: "Trip to Paris", description: "Book tickets", date: DateTime.now(), priority: "High"),
-    Plan(name: "Dog Adoption", description: "Visit the shelter", date: DateTime.now(), priority: "Medium"),
+    Plan(name: "Hiking", description: "Mountain trip", date: DateTime.now(), priority: "High"),
+    Plan(name: "Car Service", description: "Oil change", date: DateTime.now(), priority: "Low"),
   ];
 
-  void _toggleComplete(int index) {
-    setState(() {
-      plans[index].isCompleted = !plans[index].isCompleted;
-    });
+  void _editPlan(int index) {
+    TextEditingController nameController = TextEditingController(text: plans[index].name);
+    TextEditingController descriptionController = TextEditingController(text: plans[index].description);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Edit Plan"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(controller: nameController, decoration: InputDecoration(labelText: 'Name')),
+              TextField(controller: descriptionController, decoration: InputDecoration(labelText: 'Description')),
+            ],
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context), child: Text('Cancel')),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  plans[index].name = nameController.text;
+                  plans[index].description = descriptionController.text;
+                });
+                Navigator.pop(context);
+              },
+              child: Text("Update"),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Swipe to Complete")),
+      appBar: AppBar(title: Text("Long Press to Edit")),
       body: ListView.builder(
         itemCount: plans.length,
         itemBuilder: (context, index) {
-          return Dismissible(
-            key: Key(plans[index].name),
-            direction: DismissDirection.startToEnd,
-            onDismissed: (direction) => _toggleComplete(index),
-            background: Container(
-              color: Colors.green,
-              alignment: Alignment.centerLeft,
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: Icon(Icons.check, color: Colors.white),
-            ),
+          return GestureDetector(
+            onLongPress: () => _editPlan(index),
             child: ListTile(
-              title: Text(
-                plans[index].name,
-                style: TextStyle(
-                  decoration: plans[index].isCompleted ? TextDecoration.lineThrough : null,
-                ),
-              ),
+              title: Text(plans[index].name),
               subtitle: Text("${plans[index].description} - ${plans[index].date.toLocal()}"),
               trailing: Text(plans[index].priority, style: TextStyle(fontWeight: FontWeight.bold)),
             ),
