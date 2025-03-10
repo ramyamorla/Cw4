@@ -14,60 +14,32 @@ class Plan {
   });
 }
 
-class LongPressEditScreen extends StatefulWidget {
+class DoubleTapDeleteScreen extends StatefulWidget {
   @override
-  _LongPressEditScreenState createState() => _LongPressEditScreenState();
+  _DoubleTapDeleteScreenState createState() => _DoubleTapDeleteScreenState();
 }
 
-class _LongPressEditScreenState extends State<LongPressEditScreen> {
+class _DoubleTapDeleteScreenState extends State<DoubleTapDeleteScreen> {
   List<Plan> plans = [
-    Plan(name: "Hiking", description: "Mountain trip", date: DateTime.now(), priority: "High"),
-    Plan(name: "Car Service", description: "Oil change", date: DateTime.now(), priority: "Low"),
+    Plan(name: "Gym", description: "Workout session", date: DateTime.now(), priority: "High"),
+    Plan(name: "Grocery Shopping", description: "Buy vegetables", date: DateTime.now(), priority: "Medium"),
   ];
 
-  void _editPlan(int index) {
-    TextEditingController nameController = TextEditingController(text: plans[index].name);
-    TextEditingController descriptionController = TextEditingController(text: plans[index].description);
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text("Edit Plan"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(controller: nameController, decoration: InputDecoration(labelText: 'Name')),
-              TextField(controller: descriptionController, decoration: InputDecoration(labelText: 'Description')),
-            ],
-          ),
-          actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: Text('Cancel')),
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  plans[index].name = nameController.text;
-                  plans[index].description = descriptionController.text;
-                });
-                Navigator.pop(context);
-              },
-              child: Text("Update"),
-            ),
-          ],
-        );
-      },
-    );
+  void _deletePlan(int index) {
+    setState(() {
+      plans.removeAt(index);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Long Press to Edit")),
+      appBar: AppBar(title: Text("Double Tap to Delete")),
       body: ListView.builder(
         itemCount: plans.length,
         itemBuilder: (context, index) {
           return GestureDetector(
-            onLongPress: () => _editPlan(index),
+            onDoubleTap: () => _deletePlan(index),
             child: ListTile(
               title: Text(plans[index].name),
               subtitle: Text("${plans[index].description} - ${plans[index].date.toLocal()}"),
